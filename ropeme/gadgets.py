@@ -18,7 +18,7 @@
 #       MA 02110-1301, USA.
 
 import trie
-import distorm
+import distorm3
 import sys
 try:
     import cPickle as pickle
@@ -37,7 +37,7 @@ BAD_INSTS = ["DB", "CALL 0x", "JMP 0x", "JN", "JE", "JZ", "JB", "JA", "JAE", "JO
 # ROP x86 asm gadget class
 class ROPGadget:
 
-    def __init__(self, option = distorm.Decode32Bits, debug = 0):
+    def __init__(self, option = distorm3.Decode32Bits, debug = 0):
         self.__asmgadget = trie.Trie()
         self.__asmgadget.set_case_sensitive(False)
         self.__search_depth = 3 # default depth for instruction search
@@ -48,11 +48,11 @@ class ROPGadget:
         self.__decode_option = option
 
     #
-    # disassemble the binary with diStorm64
+    # disassemble the binary with distorm364
     #
-    def __disass(self, filename, offset = 0, option = distorm.Decode32Bits):
+    def __disass(self, filename, offset = 0, option = distorm3.Decode32Bits):
         code = open(filename, 'rb').read()
-        disass = distorm.DecodeGenerator(offset, code, option)
+        disass = distorm3.DecodeGenerator(offset, code, option)
         return disass
 
     #
@@ -76,7 +76,7 @@ class ROPGadget:
         for count in range(block_count):
             print >>sys.stderr, "Processing code block %d/%d" % (count+1, block_count)
             block_start = count * block_size
-            disassembly = distorm.DecodeGenerator(block_start, code[block_start:block_start + block_size], self.__decode_option)
+            disassembly = distorm3.DecodeGenerator(block_start, code[block_start:block_start + block_size], self.__decode_option)
 
             bincode = "" # keep track of hex code
             for (offset, size, instruction, hexdump) in disassembly:
@@ -109,7 +109,7 @@ class ROPGadget:
             found_bad = 0
             code = (hexbyte[(l-i-1) : l])
             code = code + RET
-            disassembly = distorm.DecodeGenerator(end_offset - i, code, self.__decode_option)
+            disassembly = distorm3.DecodeGenerator(end_offset - i, code, self.__decode_option)
             disassembly = list(disassembly)
             if len(disassembly) <= self.__backward_depth + 1: # max backward depth not reach
                 if disassembly[-1][-1].lower() != RET.encode('hex'): # invalid sequence
